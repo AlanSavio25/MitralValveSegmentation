@@ -52,8 +52,8 @@ class DeepLabV3(BaseModel):
         }
 
         
-        loss_fn = smp.losses.JaccardLoss(mode='binary', from_logits=False)
-        loss_box = loss_fn(pred['box_seg'], data['box'])
+        loss_fn = smp.losses.JaccardLoss(mode='binary', from_logits=False).to(device=self.device)
+        loss_box = loss_fn(pred['box_seg'], data['box']).to(device=self.device)
         loss['box'] = loss_box
         loss['total'] += loss_box
             
