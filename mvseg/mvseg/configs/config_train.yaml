@@ -1,0 +1,37 @@
+data:
+  name: mvseg_dataset
+#   train_split: split/train_data5.txt
+#   val_split: split/val_data5.txt
+#   test_split: split/test_/data5.txt
+  num_workers: 16
+  seed: 1
+  train_batch_size: 32
+  val_batch_size: 1
+  test_batch_size: 1
+  batch_size: 1
+model:
+  name: deeplabv3
+  head1: box
+  head2: seg
+  normalize_features: true
+  duplicate_optimizer_per_scale: true
+  normalize_dt: false
+  model: deeplabv3
+train:
+  seed: 0
+  load_experiment: #None #train_roll_data3
+  epochs: 7 # Keep this to about 7 for full training.
+  log_every_iter: 20
+  eval_every_iter: 100 # keep this to about 3-5 times per epoch.
+  lr: 1.0e-04
+  clip_grad: 1.0
+  median_metrics:
+  - loss/total # this loss is computed directly on the outputs of the networks
+#   - roll/L1_degree_loss
+#   - rho/L1_pitch_degree_loss
+  q90_metrics:
+  - loss/total
+#   - roll/L1_degree_loss
+#   - rho/L1_pitch_degree_loss
+  
+  
