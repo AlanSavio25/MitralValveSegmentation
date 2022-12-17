@@ -108,6 +108,7 @@ class BaseDataset(metaclass=ABCMeta):
     """
     base_default_conf = {
         'name': '???',
+        'finetune': '???',
         'num_workers': '???',
         'train_batch_size': '???',
         'val_batch_size': '???',

@@ -1,5 +1,6 @@
 data:
   name: mvseg_dataset
+  finetune: true # if finetune is True, the dataset returns only items containing fine segmentations. Else, box segmentations.
   num_workers: 16
   seed: 1
   train_batch_size: 32
@@ -8,27 +9,23 @@ data:
   batch_size: 1
 model:
   name: deeplabv3
-  head1: box
-  head2: seg
+  encoder: resnet101
+  finetune: true # if finetune is True, the target in the loss_fn will be the fine semantic segmentations, and not the boxes.
   normalize_features: true
   duplicate_optimizer_per_scale: true
   normalize_dt: false
   model: deeplabv3
 train:
   seed: 0
-  load_experiment: copy_exp1_box_gpu # None #train_roll_data3
-  epochs: 1500 # Keep this to about 7 for full training.
+  load_experiment: exp2_stage1_box
+  epochs: 2000 #1500 for finetune
   log_every_iter: 20
-  eval_every_iter: 100 # keep this to about 3-5 times per epoch.
+  eval_every_iter: 100
   lr: 1.0e-04
   clip_grad: 1.0
   median_metrics:
   - loss/total # this loss is computed directly on the outputs of the networks
-#   - roll/L1_degree_loss
-#   - rho/L1_pitch_degree_loss
   q90_metrics:
   - loss/total
-#   - roll/L1_degree_loss
-#   - rho/L1_pitch_degree_loss
   
   

@@ -13,6 +13,8 @@ class DeepLabV3(BaseModel):
 
     default_conf = {
         'name': 'deeplabv3',
+        'finetune': False,
+        'encoder': 'resnet101',
         'trainable': True,
         'freeze_batch_normalization': False,
         'pretrained': True, # whether to use ImageNet weights,
@@ -28,18 +30,17 @@ class DeepLabV3(BaseModel):
 
         self.conf = conf
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-        self.model = smp.DeepLabV3Plus(encoder_name='resnet101', in_channels=1, activation='sigmoid') # Model(pretrained=self.conf.pretrained)
-        self.sem_seg_head = deepcopy(self.model.segmentation_head)
+        self.model = smp.DeepLabV3Plus(encoder_name=self.conf.encoder, in_channels=1, activation='sigmoid')
+#         self.sem_seg_head = deepcopy(self.model.segmentation_head)
         self.box_seg_head = deepcopy(self.model.segmentation_head)
         self.model.segmentation_head = Identity()
         
     def _forward(self, data):
         image = data['image']
         encoding_decoding = self.model(image)
-        box_seg = self.box_seg_head(encoding_decoding)
-        sem_seg = self.sem_seg_head(encoding_decoding)
-        pred = {'box_seg': box_seg, 'sem_seg': sem_seg}
+        seg = self.box_seg_head(encoding_decoding)
+#         sem_seg = self.sem_seg_head(encoding_decoding)
+        pred = {'seg': seg} #, 'sem_seg': sem_seg}
         return pred
         
     def loss(self, pred, data):
@@ -49,9 +50,12 @@ class DeepLabV3(BaseModel):
         }
 
         loss_fn = smp.losses.JaccardLoss(mode='binary', from_logits=False).to(device=self.device)
+        if self.conf.finetune:
+            target = data['label']
+        else:
+            target = data['box']
         
-        
-        loss_box = loss_fn(pred['box_seg'], data['label']).to(device=self.device) # for fine-tuning I changed 'box' to 'label'
+        loss_box = loss_fn(pred['box_seg'], target).to(device=self.device) # for fine-tuning I changed 'box' to 'label'
         loss['box'] = loss_box
         loss['total'] += loss_box
         
