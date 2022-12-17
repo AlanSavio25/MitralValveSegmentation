@@ -48,7 +48,6 @@ class _Dataset(torch.utils.data.Dataset):
         self.items = []
         
         
-        # TODO: when resizing you are implicitly dividing by 255, so don't do it twice!
         if split == 'train':
             self.train_data = load_zipped_pickle(DATA_PATH + 'train.pkl')
             self.train_data.pop(45)
@@ -64,14 +63,16 @@ class _Dataset(torch.utils.data.Dataset):
                         continue
                     
                     l = label[i].astype('float32')
-                    if not (im.shape[0] == im.shape[1] == 112):
-                        im = resize(im, (112, 112), anti_aliasing=True)
-                        box = resize(box, (112, 112), anti_aliasing=True)
-                        l = resize(l, (112, 112), anti_aliasing=True)
-                        
-                    im = torch.from_numpy(im / 255.).float().unsqueeze(0)
+                    
+                    im = resize(im, (224, 224), anti_aliasing=True)
+                    im = torch.from_numpy(im).float().unsqueeze(0)
+                    
+                    box = resize(box, (224, 224), anti_aliasing=True)
                     box = box.astype('float32')
+                    
+                    l = resize(l, (224, 224), anti_aliasing=True)
                     l = l.astype('float32')
+                    
                     item = {
                         'image': im,
                         'box': box,
@@ -92,15 +93,16 @@ class _Dataset(torch.utils.data.Dataset):
                     
                     if i not in data['frames']:
                         continue
+                        
                     l = label[i].astype('float32')
                     
-                    if not (im.shape[0] == im.shape[1] == 112):
-                        im = resize(im, (112, 112), anti_aliasing=True)
-                        box = resize(box, (112, 112), anti_aliasing=True)
-                        l = resize(l, (112, 112), anti_aliasing=True)
-                        
-                    im = torch.from_numpy(im / 255.).float().unsqueeze(0)
+                    im = resize(im, (224, 224), anti_aliasing=True)
+                    im = torch.from_numpy(im).float().unsqueeze(0)
+                    
+                    box = resize(box, (224, 224), anti_aliasing=True)
                     box = box.astype('float32')
+                    
+                    l = resize(l, (224, 224), anti_aliasing=True)
                     l = l.astype('float32')
                     
                     item = {
@@ -120,11 +122,15 @@ class _Dataset(torch.utils.data.Dataset):
                 video = np.moveaxis(data['video'], -1, 0)
                 for i, im in enumerate(video):
                     h, w = im.shape[0], im.shape[1]
-                    if not (im.shape[0] == im.shape[1] == 112):
-                        im = resize(im, (112, 112), anti_aliasing=True)
-                        im = torch.from_numpy(im / 255.).float().unsqueeze(0)
-                    else:    
-                        im = torch.from_numpy(im / 255.).float().unsqueeze(0)
+#                     if not (im.shape[0] == im.shape[1] == 112):
+#                         im = resize(im, (112, 112), anti_aliasing=True)
+#                         im = torch.from_numpy(im / 255.).float().unsqueeze(0)
+#                     else:    
+#                         im = torch.from_numpy(im / 255.).float().unsqueeze(0)
+
+                    im = resize(im, (224, 224), anti_aliasing=True)
+                    im = torch.from_numpy(im).float().unsqueeze(0)
+#                     print(f"Shape of im: {im.shape}, max: {torch.max(im)}, min: {torch.min(im)}")
                     item = {
                         'image': im,
                         'video': data['name'],
