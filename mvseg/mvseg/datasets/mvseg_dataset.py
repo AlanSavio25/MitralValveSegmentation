@@ -46,6 +46,9 @@ class _Dataset(torch.utils.data.Dataset):
         self.conf = conf
         self.split = split
         self.items = []
+        
+        
+        # TODO: when resizing you are implicitly dividing by 255, so don't do it twice!
         if split == 'train':
             self.train_data = load_zipped_pickle(DATA_PATH + 'train.pkl')
             self.train_data.pop(45)
@@ -56,6 +59,9 @@ class _Dataset(torch.utils.data.Dataset):
                 video = np.moveaxis(data['video'], -1, 0)
                 box = data['box'].astype('float32')
                 for i, im in enumerate(video):
+                    
+                    if i not in data['frames']:
+                        continue
                     
                     l = label[i].astype('float32')
                     if not (im.shape[0] == im.shape[1] == 112):
@@ -83,6 +89,9 @@ class _Dataset(torch.utils.data.Dataset):
                 video = np.moveaxis(data['video'], -1, 0)
                 box = data['box'].astype('float32')
                 for i, im in enumerate(video):
+                    
+                    if i not in data['frames']:
+                        continue
                     l = label[i].astype('float32')
                     
                     if not (im.shape[0] == im.shape[1] == 112):
@@ -102,8 +111,33 @@ class _Dataset(torch.utils.data.Dataset):
                     self.items.append(item)
             
             
-#         elif split == 'test':
+        elif split == 'test':
 #             self.test_data = load_zipped_pickle("test.pkl")
+            test_data = load_zipped_pickle(DATA_PATH + 'test.pkl')
+
+            self.items = []
+            for data in test_data:
+                video = np.moveaxis(data['video'], -1, 0)
+                for i, im in enumerate(video):
+                    h, w = im.shape[0], im.shape[1]
+                    if not (im.shape[0] == im.shape[1] == 112):
+                        im = resize(im, (112, 112), anti_aliasing=True)
+                        im = torch.from_numpy(im / 255.).float().unsqueeze(0)
+                    else:    
+                        im = torch.from_numpy(im / 255.).float().unsqueeze(0)
+                    item = {
+                        'image': im,
+                        'video': data['name'],
+                        'frame_number': i,
+                        'hw': (h,w),
+                    }
+                    self.items.append(item)
+#                 print(f"data name: {data['name']}")
+#                 print(f"video shape: {video.shape}")
+#                 len_stored = sum([1 for it in self.items if it['video'] == data['name']])
+#                 print(f"len stored: {len_stored}")
+#                 assert len_stored == video.shape[0]
+#                 print(f"v")
 
     def __getitem__(self, idx):
         data = self.items[idx]

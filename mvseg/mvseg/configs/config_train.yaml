@@ -1,8 +1,5 @@
 data:
   name: mvseg_dataset
-#   train_split: split/train_data5.txt
-#   val_split: split/val_data5.txt
-#   test_split: split/test_/data5.txt
   num_workers: 16
   seed: 1
   train_batch_size: 32
@@ -19,8 +16,8 @@ model:
   model: deeplabv3
 train:
   seed: 0
-  load_experiment: #None #train_roll_data3
-  epochs: 7 # Keep this to about 7 for full training.
+  load_experiment: copy_exp1_box_gpu # None #train_roll_data3
+  epochs: 1500 # Keep this to about 7 for full training.
   log_every_iter: 20
   eval_every_iter: 100 # keep this to about 3-5 times per epoch.
   lr: 1.0e-04

@@ -9,3 +9,4 @@ omegaconf
 tensorboard
 scikit-image
 torchmetrics
+segmentation_models_pytorch
