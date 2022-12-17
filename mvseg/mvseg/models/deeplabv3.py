@@ -21,9 +21,6 @@ class DeepLabV3(BaseModel):
         },
     }
     
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
-    
     strict_conf = False
 
 
@@ -32,7 +29,7 @@ class DeepLabV3(BaseModel):
         self.conf = conf
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-        self.model = smp.DeepLabV3Plus(in_channels=1, activation='sigmoid') # Model(pretrained=self.conf.pretrained)
+        self.model = smp.DeepLabV3Plus(encoder_name='resnet101', in_channels=1, activation='sigmoid') # Model(pretrained=self.conf.pretrained)
         self.sem_seg_head = deepcopy(self.model.segmentation_head)
         self.box_seg_head = deepcopy(self.model.segmentation_head)
         self.model.segmentation_head = Identity()
