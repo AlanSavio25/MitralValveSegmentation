@@ -12,7 +12,7 @@ models = {
 }
 
 def main(args):
-    cmd = f"bsub -n {args.cpus} -W {args.time} {args.warn} -G ls_polle_s "
+    cmd = f"bsub -n {args.cpus} -W {args.time} {args.warn}"
     if args.name is not None:
         cmd += f"-J {args.name} "
     cmd += f"-R 'rusage[mem={ceil(args.mem/args.cpus)},scratch={ceil(args.scratch/args.cpus)}]' "
